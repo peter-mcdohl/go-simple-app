@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -24,13 +25,7 @@ var people []Person
 
 // Display all from the people var
 func GetPeople(w http.ResponseWriter, r *http.Request) {
-	for _, item := range people {
-		// if item.ID == params["id"] {
-		json.NewEncoder(w).Encode(item)
-		// return
-		// }
-	}
-	json.NewEncoder(w).Encode(&Person{})
+	json.NewEncoder(w).Encode(people)
 }
 
 // Display a single data
@@ -53,6 +48,30 @@ func CreatePerson(w http.ResponseWriter, r *http.Request) {
 	person.ID = params["id"]
 	people = append(people, person)
 	json.NewEncoder(w).Encode(people)
+}
+
+// update a new item
+func EditPerson(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	newPerson := new(Person)
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(bodyBytes, &newPerson)
+
+	// newPerson := new(Person)
+	for i, _ := range people {
+		if people[i].ID == params["id"] {
+			// fmt.Println(newPerson)
+			// fmt.Println(newPerson.Firstname)
+			fmt.Println(newPerson.Lastname)
+			people[i] = *newPerson
+			// people[i].Firstname = newPerson.Firstname
+			// people[i].Lastname = newPerson.Lastname
+			// people[i].Address.City = params["address"]["city"]
+			// people[i].Address.State = params["address"]["state"]
+			json.NewEncoder(w).Encode(people[i])
+			return
+		}
+	}
 }
 
 // Delete an item
@@ -79,6 +98,7 @@ func main() {
 	router.HandleFunc("/", handler)
 	router.HandleFunc("/people", GetPeople).Methods("GET")
 	router.HandleFunc("/people/{id}", GetPerson).Methods("GET")
+	router.HandleFunc("/people/{id}", EditPerson).Methods("PUT")
 	router.HandleFunc("/people/{id}", CreatePerson).Methods("POST")
 	router.HandleFunc("/people/{id}", DeletePerson).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
