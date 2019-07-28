@@ -4,6 +4,7 @@ Build the docker image for [go-simple-app](https://github.com/kevinturnip/go-sim
 
 ## Getting Started
 
+* Add package gorilla/mux `go get github.com/gorilla/mux`
 * Build binary file `CGO_ENABLED=0 go build -o app .`
 * Build docker image `docker build -t go-simple-app .`
 
